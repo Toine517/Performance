@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Benchmark Tool</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F4EEEE;
+            color: #2D2D2D;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 450px;
+            text-align: center;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        h1 { font-size: 24px; font-weight: bold; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { font-size: 16px; margin-right: 10px; }
+        input {
+            font-size: 16px;
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+        }
+        button {
+            font-size: 16px;
+            background-color: #2D2D2D;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 25px;
+        }
+        button:hover { background-color: #444444; }
+        .result-title { font-weight: bold; font-size: 18px; margin-top: 15px; }
+        .result-value { font-size: 16px; min-height: 24px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>CPU Benchmark Tool</h1>
+    
+    <div class="form-group">
+        <label for="iterations">Iterations (20-200):</label>
+        <input type="number" id="iterations" value="20" min="20" max="200">
+    </div>
+
+    <button id="runBtn" onclick="runBenchmark()">Run Benchmark</button>
+
+    <div>
+        <div class="result-title">Score:</div>
+        <div id="scoreLabel" class="result-value"></div>
+        
+        <div class="result-title">Time (ms):</div>
+        <div id="timeLabel" class="result-value"></div>
+    </div>
+</div>
+
+<script>
+function runBenchmark() {
+    const iterations = document.getElementById('iterations').value;
+    const scoreLabel = document.getElementById('scoreLabel');
+    const timeLabel = document.getElementById('timeLabel');
+    const runBtn = document.getElementById('runBtn');
+
+    // Reset fields and show pending status
+    scoreLabel.innerText = "Running benchmark...";
+    timeLabel.innerText = "";
+    runBtn.disabled = true;
+
+    fetch('/run_benchmark', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ iterations: iterations })
+    })
+    .then(response => response.json().then(data => ({ status: response.status, body: data })))
+    .then(res => {
+        if (res.status !== 200) {
+            alert(res.body.error);
+            scoreLabel.innerText = "";
+        } else {
+            scoreLabel.innerText = "Score: " + res.body.score;
+            timeLabel.innerText = res.body.time_ms;
+        }
+    })
+    .catch(err => {
+        alert("An error occurred during calculation.");
+        scoreLabel.innerText = "";
+    })
+    .finally(() => {
+        runBtn.disabled = false;
+    });
+}
+</script>
+
+</body>
+</html>
+
+
