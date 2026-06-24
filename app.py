@@ -4,7 +4,7 @@ from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-MAX_ITERATIONS = 200
+MAX_ITERATIONS = 2000
 
 
 @app.route("/")
